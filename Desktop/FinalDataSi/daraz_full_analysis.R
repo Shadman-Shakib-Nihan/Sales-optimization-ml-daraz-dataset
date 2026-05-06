@@ -242,23 +242,38 @@ if("Product_Name" %in% colnames(df)) {
   )
 }
 
+#=====================================================
+#price vs heatmap
+
+ggplot(df, aes(x = Price_Current, y = Units_Sold)) +
+  geom_point(alpha = 0.3, color = "#1D5C96", size = 1.5) +
+  labs(title = "Price vs Units Sold",
+       x = "Price (BDT)", y = "Units Sold") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+
+
 # ===============================
 # 📊 10. CORRELATION HEATMAP
 # ===============================
+library(reshape2)
 
-numeric_df <- df %>% select(where(is.numeric))
+num_cols <- c("Price_Current", "Price_MRP", "Rating",
+              "Reviews", "Units_Sold", "Discount_Pct")
 
-if(ncol(numeric_df) > 1) {
-  corr <- cor(numeric_df)
-  melted_corr <- melt(corr)
-  
-  print(
-    ggplot(melted_corr, aes(x = Var1, y = Var2, fill = value)) +
-      geom_tile() +
-      ggtitle("Correlation Heatmap") +
-      theme_minimal()
-  )
-}
+corr_mat <- cor(df[, num_cols], use = "complete.obs")
+melted <- melt(corr_mat)
+
+ggplot(melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", value)), size = 3) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                       midpoint = 0, limits = c(-1, 1)) +
+  labs(title = "Correlation Heatmap",
+       x = NULL, y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 30, hjust = 1))
 
 # ===============================
 # 📌 11. SAVE FINAL DATA
@@ -500,4 +515,3 @@ ggplot(train_rf_df, aes(x = Actual, y = Predicted)) +
     x = "Actual Discount",
     y = "Predicted Discount"
   )
-
