@@ -303,6 +303,9 @@ df_model <- df_model %>%
 # ════════════════════════════════════════════════════════════
 #  SECTION 2 — TRAIN / TEST SPLIT
 # ════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
+#  SECTION 2 — TRAIN / TEST SPLIT
+# ════════════════════════════════════════════════════════════
 
 set.seed(42)
 train_idx <- createDataPartition(df_model$Discount_Pct, p = 0.8, list = FALSE)
@@ -311,6 +314,20 @@ train_df <- df_model[train_idx, ]
 test_df  <- df_model[-train_idx, ]
 
 cat(sprintf("Train: %d rows | Test: %d rows\n", nrow(train_df), nrow(test_df)))
+
+# Visualize Train/Test Split
+train_test_split <- data.frame(
+  Dataset = c(rep("Train", nrow(train_df)), rep("Test", nrow(test_df))),
+  Discount_Pct = c(train_df$Discount_Pct, test_df$Discount_Pct)
+)
+
+ggplot(train_test_split, aes(x = Discount_Pct, fill = Dataset)) +
+  geom_histogram(position = "identity", alpha = 0.6, bins = 30) +
+  labs(title = "Train/Test Split Distribution",
+       x = "Discount Percentage",
+       y = "Count") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Train" = "#1D7E5F", "Test" = "#6B8CAE"))
 
 # ════════════════════════════════════════════════════════════
 #  SECTION 3 — CROSS VALIDATION
